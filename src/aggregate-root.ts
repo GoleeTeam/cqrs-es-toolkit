@@ -3,12 +3,12 @@ import { Event } from "./event";
 // From https://github.com/gregoryyoung/m-r/blob/3dc9c2264188eac783c2e6d76dbd5de9cfd1e757/SimpleCQRS/Domain.cs#L63
 
 export abstract class AggregateRoot {
-  private _changes: Event[] = [];
+  private _changes: Event<unknown>[] = [];
 
   public id: string;
   public version = 0;
 
-  public getUncommittedChanges(): Event[] {
+  public getUncommittedChanges(): Event<unknown>[] {
     return this._changes;
   }
 
@@ -16,18 +16,18 @@ export abstract class AggregateRoot {
     this._changes = [];
   }
 
-  public loadFromHistory(history: Event[]): void {
+  public loadFromHistory(history: Event<unknown>[]): void {
     history.forEach((e) => this.applyChange(e, false));
   }
 
-  public applyChange(event: Event, isNew = true): void {
+  public applyChange(event: Event<unknown>, isNew = true): void {
     const handler = this.getEventHandler(event);
     handler.call(this, event);
     isNew && this._changes.push(event);
     this.version++;
   }
 
-  protected getEventHandler(event: Event): any {
+  protected getEventHandler(event: Event<unknown>): any {
     const handler = `on${event.constructor.name}`;
     return this[handler];
   }

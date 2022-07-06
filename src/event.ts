@@ -1,5 +1,5 @@
-export class Event {
-  public payload: unknown;
+export class Event<PayloadType> {
+  public payload: PayloadType;
   public metadata: EventMetadata;
   public isPublic: boolean;
 
@@ -8,13 +8,13 @@ export class Event {
   }
 }
 
-export class DomainEvent extends Event {
+export class DomainEvent<PayloadType> extends Event<PayloadType> {
   constructor() {
     super(false)
   }
 }
 
-export class PublicDomainEvent extends Event {
+export class PublicDomainEvent<PayloadType> extends Event<PayloadType> {
   constructor() {
     super(true)
   }
