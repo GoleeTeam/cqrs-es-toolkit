@@ -2,21 +2,23 @@ export class Event<PayloadType> {
   public payload: PayloadType;
   public metadata: EventMetadata;
   public isPublic: boolean;
+  public aggregateId: string;
 
-  constructor(isPublic: boolean) {
+  constructor(aggregateId: string, isPublic: boolean) {
+    this.aggregateId = aggregateId
     this.isPublic = isPublic
   }
 }
 
 export class DomainEvent<PayloadType> extends Event<PayloadType> {
-  constructor() {
-    super(false)
+  constructor(aggregateId: string) {
+    super(aggregateId, false)
   }
 }
 
 export class PublicDomainEvent<PayloadType> extends Event<PayloadType> {
-  constructor() {
-    super(true)
+  constructor(aggregateId: string) {
+    super(aggregateId, true)
   }
 }
 
