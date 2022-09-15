@@ -3,10 +3,14 @@ import { Event } from "./event";
 // From https://github.com/gregoryyoung/m-r/blob/3dc9c2264188eac783c2e6d76dbd5de9cfd1e757/SimpleCQRS/Domain.cs#L63
 
 export abstract class AggregateRoot {
-  private _changes: Event<unknown>[] = [];
-
   public id: string;
+  private _changes: Event<unknown>[] = [];
   public version = 0;
+
+  constructor(id: string) {
+    this.id = id
+  }
+
 
   public getUncommittedChanges(): Event<unknown>[] {
     return this._changes;
