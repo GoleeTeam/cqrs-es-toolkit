@@ -1,23 +1,24 @@
-export class Event<PayloadType> {
-  public eventName: string;
-  public payload: PayloadType;
-  public aggregateId: string;
-  public isPublic: boolean;
-
-  constructor(aggregateId: string, isPublic: boolean) {
-    this.aggregateId = aggregateId;
-    this.isPublic = isPublic;
-  }
+export abstract class Event<EventPayloadType> {
+  abstract readonly eventName: string;
+  abstract readonly eventPayload: EventPayloadType;
+  abstract readonly aggregateId: string;
 }
 
-export class DomainEvent<PayloadType> extends Event<PayloadType> {
-  constructor(aggregateId: string) {
-    super(aggregateId, false);
-  }
-}
+export class PrivateEvent<EventPayloadType> implements Event<EventPayloadType> {
+  readonly isPublic = false;
 
-export class PublicDomainEvent<PayloadType> extends Event<PayloadType> {
-  constructor(aggregateId: string) {
-    super(aggregateId, true);
-  }
+  constructor(
+    readonly aggregateId: string,
+    readonly eventName: string,
+    readonly eventPayload: EventPayloadType
+  ) {}
+}
+export class PublicEvent<EventPayloadType> implements Event<EventPayloadType> {
+  readonly isPublic = true;
+
+  constructor(
+    readonly aggregateId: string,
+    readonly eventName: string,
+    readonly eventPayload: EventPayloadType
+  ) {}
 }
