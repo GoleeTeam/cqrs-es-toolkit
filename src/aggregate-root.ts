@@ -6,8 +6,9 @@ export abstract class AggregateRoot {
 	public id: string;
 	private _changes: Event<unknown>[] = [];
 	public version = 0;
+	public deleted = false;
 
-	constructor(id: string) {
+	protected constructor(id: string) {
 		this.id = id;
 	}
 
