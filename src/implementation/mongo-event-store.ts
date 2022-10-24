@@ -35,8 +35,8 @@ export class MongoEventStore implements IEventStore {
 		return this.mongoDocsToDomainEvents(eventsDocs);
 	}
 
-	async getAllEvents(skip: number, limit: number, event_name?: string): Promise<Event<unknown>[]> {
-		const filters = event_name ? { event_name } : {};
+	async getAllEvents(skip: number, limit: number, events_name?: string[]): Promise<Event<unknown>[]> {
+		const filters = events_name ? { event_name: { $in: events_name } } : {};
 		const eventsDocs = await this.mongoDocModel.find(filters, null, {
 			sort: { _id: 1 },
 			skip,
@@ -56,7 +56,7 @@ export class MongoEventStore implements IEventStore {
 	}
 }
 
-export const EventStoreSchema = new Schema(
+export const EventStoreSchema = new Schema<any>(
 	{
 		_id: { type: Types.ObjectId },
 		aggregate_id: { type: String, index: true },
