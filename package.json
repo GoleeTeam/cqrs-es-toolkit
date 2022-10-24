@@ -1,6 +1,6 @@
 {
   "name": "@golee/cqrs-es-toolkit",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "",
   "main": "dist/index",
   "types": "dist/index",
@@ -17,6 +17,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "mongoose": "^6.6.7"
   },
   "devDependencies": {
     "@types/jest": "^27.4.0",
