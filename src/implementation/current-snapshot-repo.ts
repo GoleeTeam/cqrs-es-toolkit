@@ -25,11 +25,11 @@ export class CurrentSnapshotRepo<AggregateType extends AggregateRoot> {
 	);
 
 	async findOne(...args: Find<CurrentSnapshot<AggregateType>>): Promise<CurrentSnapshot<AggregateType> | null> {
-		return this.model.findOne(args);
+		return this.model.findOne(...args);
 	}
 
 	async findMany(...args: Find<CurrentSnapshot<AggregateType>>): Promise<CurrentSnapshot<AggregateType>[]> {
-		return this.model.find(args);
+		return this.model.find(...args);
 	}
 
 	async save(aggregate: AggregateType, aggregateVersion: number): Promise<void> {

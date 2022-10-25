@@ -25,10 +25,10 @@ export class PragmaticRepo<AggregateType extends AggregateRoot> implements IPrag
 	}
 
 	async findOneFromWriteModel(...args: Find<AggregateType>): Promise<CurrentSnapshot<AggregateType> | null> {
-		return await this.writeModelRepo.findOne(args);
+		return await this.writeModelRepo.findOne(...args);
 	}
 
 	async findManyFromWriteModel(...args: Find<AggregateType>): Promise<CurrentSnapshot<AggregateType>[]> {
-		return await this.writeModelRepo.findMany(args);
+		return await this.writeModelRepo.findMany(...args);
 	}
 }
