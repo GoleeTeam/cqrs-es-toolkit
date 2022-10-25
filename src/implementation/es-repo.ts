@@ -7,11 +7,19 @@ export class EsRepo<AggregateType extends AggregateRoot> implements IESRepo<Aggr
 		private readonly aggregateClass: new (...args) => AggregateType
 	) {}
 
-	async getById(aggregate_id: string): Promise<AggregateType | null> {
+	async getById(aggregate_id: string, options = { includeDeleted: false }): Promise<AggregateType | null> {
 		const aggregate = new this.aggregateClass(aggregate_id);
+
 		const history = await this.eventStore.getEventsForAggregate(aggregate_id);
-		if (history.length === 0) return null;
+		if (history.length === 0) {
+			return null;
+		}
+
 		aggregate.loadFromHistory(history);
+		if (aggregate.deleted && !options.includeDeleted) {
+			return null;
+		}
+
 		return aggregate;
 	}
 
