@@ -1,22 +1,22 @@
 import { CurrentSnapshot, CurrentSnapshotRepo, Find } from './current-snapshot-repo';
 import { AggregateRoot } from '../aggregate-root';
-import { IESRepo } from '../interfaces';
+import { IEsRepo } from '../interfaces';
 
 export interface IPragmaticRepo<AggregateType> {
-	getByIdFromEs: (aggregateId: string) => Promise<AggregateType | null>;
+	getByIdFromEs: (aggregateId: string, options?: { includeDeleted: boolean }) => Promise<AggregateType | null>;
 	commitAndSave: (aggregate: AggregateType, aggregateVersion: number) => Promise<void>;
-	findOneFromWriteModel: (...args: Find<AggregateType>) => Promise<CurrentSnapshot<AggregateType> | null>;
-	findManyFromWriteModel: (...args: Find<AggregateType>) => Promise<CurrentSnapshot<AggregateType>[]>;
+	findOneFromCurrentSnapshot: (...args: Find<AggregateType>) => Promise<CurrentSnapshot<AggregateType> | null>;
+	findManyFromCurrentSnapshot: (...args: Find<AggregateType>) => Promise<CurrentSnapshot<AggregateType>[]>;
 }
 
 export class PragmaticRepo<AggregateType extends AggregateRoot> implements IPragmaticRepo<AggregateType> {
 	constructor(
-		private readonly esRepo: IESRepo<AggregateType>,
+		private readonly esRepo: IEsRepo<AggregateType>,
 		private readonly writeModelRepo: CurrentSnapshotRepo<AggregateType>
 	) {}
 
-	async getByIdFromEs(aggregate_id: string): Promise<AggregateType | null> {
-		return await this.esRepo.getById(aggregate_id);
+	async getByIdFromEs(aggregate_id: string, options = { includeDeleted: false }): Promise<AggregateType | null> {
+		return await this.esRepo.getById(aggregate_id, options);
 	}
 
 	async commitAndSave(aggregate: AggregateType, aggregateVersion: number): Promise<void> {
@@ -24,11 +24,11 @@ export class PragmaticRepo<AggregateType extends AggregateRoot> implements IPrag
 		await this.writeModelRepo.save(aggregate, aggregateVersion);
 	}
 
-	async findOneFromWriteModel(...args: Find<AggregateType>): Promise<CurrentSnapshot<AggregateType> | null> {
+	async findOneFromCurrentSnapshot(...args: Find<AggregateType>): Promise<CurrentSnapshot<AggregateType> | null> {
 		return await this.writeModelRepo.findOne(...args);
 	}
 
-	async findManyFromWriteModel(...args: Find<AggregateType>): Promise<CurrentSnapshot<AggregateType>[]> {
+	async findManyFromCurrentSnapshot(...args: Find<AggregateType>): Promise<CurrentSnapshot<AggregateType>[]> {
 		return await this.writeModelRepo.findMany(...args);
 	}
 }

@@ -1,4 +1,4 @@
-export interface IESRepo<T> {
+export interface IEsRepo<T> {
 	commit: (aggregate: T, expectedVersion: number) => Promise<void>;
-	getById: (id: string) => Promise<T | null>;
+	getById: (id: string, options: { includeDeleted: boolean }) => Promise<T | null>;
 }

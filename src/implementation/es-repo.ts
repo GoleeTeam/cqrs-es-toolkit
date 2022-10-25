@@ -1,7 +1,7 @@
 import { AggregateRoot } from '../aggregate-root';
-import { IESRepo, IEventStore } from '../interfaces';
+import { IEsRepo, IEventStore } from '../interfaces';
 
-export class EsRepo<AggregateType extends AggregateRoot> implements IESRepo<AggregateType> {
+export class EsRepo<AggregateType extends AggregateRoot> implements IEsRepo<AggregateType> {
 	constructor(
 		private readonly eventStore: IEventStore,
 		private readonly aggregateClass: new (...args) => AggregateType

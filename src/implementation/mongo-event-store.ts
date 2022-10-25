@@ -55,14 +55,9 @@ export class MongoEventStore implements IEventStore {
 		});
 	}
 
-	async getUniqueAggregateIdsByEvents(skip: number, limit: number, events_name?: string[]): Promise<string[]> {
+	async getDistinctAggregateIdsByEvents(events_name?: string[]): Promise<string[]> {
 		const filters = events_name ? { event_name: { $in: events_name } } : {};
-		const idsDocs = await this.mongoDocModel.distinct('aggregate_id', filters);
-		return this.extractAggregateIdsFromDocuments(idsDocs);
-	}
-
-	private extractAggregateIdsFromDocuments(idsDocs: EventStoreDoc[]) {
-		return idsDocs.map(d => d.aggregate_id);
+		return this.mongoDocModel.distinct('aggregate_id', filters);
 	}
 }
 
