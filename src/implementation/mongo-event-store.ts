@@ -63,7 +63,7 @@ export const EventStoreSchema = new Schema<any>(
 		payload: { type: Schema.Types.Mixed },
 		event_name: { type: String },
 	},
-	{ timestamps: false, collection: 'event_store' }
+	{ timestamps: true, collection: 'event_store' }
 );
 
 export type EventStoreDoc = {

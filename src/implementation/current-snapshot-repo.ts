@@ -17,7 +17,7 @@ export class CurrentSnapshotRepo<AggregateType extends AggregateRoot> {
 
 	private schema = new Schema<CurrentSnapshot<AggregateType>>(
 		{},
-		{ collection: `${this.aggregateClass.name}_current_snapshot` }
+		{ collection: `${this.aggregateClass.name}_current_snapshot`, timestamps: true }
 	);
 	private model = this.mongoConn.model<CurrentSnapshot<AggregateType>>(
 		`${this.aggregateClass.name}_model`,
