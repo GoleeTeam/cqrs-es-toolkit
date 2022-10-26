@@ -17,20 +17,21 @@ export class CurrentSnapshotRepo<AggregateType extends AggregateRoot> {
 
 	private schema = new Schema<CurrentSnapshot<AggregateType>>(
 		{},
-		{ collection: `${this.aggregateClass.name}_current_snapshot`, timestamps: true }
+		{ collection: `${this.aggregateClass.name}_current_snapshot`, timestamps: true, id: false }
 	);
+
 	private model = this.mongoConn.model<CurrentSnapshot<AggregateType>>(
 		`${this.aggregateClass.name}_model`,
 		this.schema
 	);
 
 	async findOne(...args: Find<CurrentSnapshot<AggregateType>>): Promise<CurrentSnapshot<AggregateType> | null> {
-		args[2] = { ...(args[2] || {}), ...{ strict: false, strictQuery: false } };
+		args[2] = { ...(args[2] || {}), ...{ strict: false, strictQuery: false, lean: true } };
 		return this.model.findOne(...args);
 	}
 
 	async findMany(...args: Find<CurrentSnapshot<AggregateType>>): Promise<CurrentSnapshot<AggregateType>[]> {
-		args[2] = { ...(args[2] || {}), ...{ strict: false, strictQuery: false } };
+		args[2] = { ...(args[2] || {}), ...{ strict: false, strictQuery: false, lean: true } };
 		return this.model.find(...args);
 	}
 
