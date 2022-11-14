@@ -12,7 +12,7 @@ export class MongoEventStore implements IEventStore {
 	async saveEvents(aggregate_id: string, events: Event<unknown>[]): Promise<void> {
 		for (const event of events) {
 			await this.mongoDocModel.create({
-				_id: new Types.ObjectId(),
+				_id: event.eventId,
 				aggregate_id: event.aggregateId,
 				event_name: event.eventName,
 				payload: event.eventPayload,
@@ -51,7 +51,9 @@ export class MongoEventStore implements IEventStore {
 			// TODO: bad solution
 			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 			// @ts-ignore
-			return new (this.domainEvents.get(e.event_name!)!)(e.aggregate_id, e.payload);
+			const event = new (this.domainEvents.get(e.event_name!)!)(e.aggregate_id, e.payload);
+			event.setEventId(e._id.toString());
+			return event;
 		});
 	}
 
