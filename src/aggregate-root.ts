@@ -5,7 +5,7 @@ import { Event } from './event';
 export abstract class AggregateRoot {
 	public id: string;
 	private _changes: Event<unknown>[] = [];
-	public sequence = 0;
+	public version = 0;
 	public deleted = false;
 
 	protected constructor(id: string) {
@@ -25,8 +25,8 @@ export abstract class AggregateRoot {
 	}
 
 	public applyChange(event: Event<unknown>, isNew = true): void {
-		this.sequence++;
-		event.setSequence(this.sequence);
+		this.version++;
+		event.setAggregateVersion(this.version);
 
 		const handler = this.getEventHandler(event);
 		handler.call(this, event);

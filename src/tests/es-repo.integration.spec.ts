@@ -50,12 +50,12 @@ describe('EsRepo', function () {
 
 		it('should have aggregate sequence to 1', async function () {
 			const testAggregate = await esRepo.getById(uuid1Fixture);
-			expect(testAggregate.sequence).toEqual(1);
+			expect(testAggregate.version).toEqual(1);
 		});
 
 		it('should save event sequence to 1', async function () {
 			const document = await eventStoreModel.findOne({ aggregate_id: uuid1Fixture });
-			expect(document.aggregate_sequence).toEqual(1);
+			expect(document.aggregate_version).toEqual(1);
 		});
 	});
 
@@ -76,14 +76,14 @@ describe('EsRepo', function () {
 
 		it('should have aggregate sequence to 2', async function () {
 			const testAggregate = await esRepo.getById(uuid1Fixture);
-			expect(testAggregate.sequence).toEqual(2);
+			expect(testAggregate.version).toEqual(2);
 		});
 
 		it('should save last event sequence to 2', async function () {
 			const document = await eventStoreModel.findOne({ aggregate_id: uuid1Fixture }, undefined, {
-				sort: { aggregate_sequence: -1 },
+				sort: { aggregate_version: -1 },
 			});
-			expect(document.aggregate_sequence).toEqual(2);
+			expect(document.aggregate_version).toEqual(2);
 		});
 	});
 });

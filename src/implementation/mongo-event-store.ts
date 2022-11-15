@@ -16,7 +16,7 @@ export class MongoEventStore implements IEventStore {
 				aggregate_id: event.aggregateId,
 				event_name: event.eventName,
 				payload: event.eventPayload,
-				aggregate_sequence: event.sequence,
+				aggregate_version: event.aggregateVersion,
 			});
 
 			if (this.publisher && event.isPublic) {
@@ -54,7 +54,7 @@ export class MongoEventStore implements IEventStore {
 			// @ts-ignore
 			const event = new (this.domainEvents.get(e.event_name!)!)(e.aggregate_id, e.payload);
 			event.setEventId(e._id.toString());
-			event.setSequence(e.aggregate_sequence);
+			event.setAggregateVersion(e.aggregate_version);
 			return event;
 		});
 	}
@@ -71,7 +71,7 @@ export const EventStoreSchema = new Schema<any>(
 		aggregate_id: { type: String, index: true },
 		payload: { type: Schema.Types.Mixed },
 		event_name: { type: String },
-		aggregate_sequence: { type: Number }, // should we add a compound unique index?
+		aggregate_version: { type: Number }, // should we add a compound unique index?
 	},
 	{ timestamps: true, collection: 'event_store' }
 );
@@ -80,5 +80,5 @@ export type EventStoreDoc = {
 	payload: unknown;
 	aggregate_id: string;
 	event_name: string;
-	aggregate_sequence: number;
+	aggregate_version: number;
 } & Document;
