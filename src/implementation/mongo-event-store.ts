@@ -71,10 +71,13 @@ export const EventStoreSchema = new Schema<any>(
 		aggregate_id: { type: String, index: true },
 		payload: { type: Schema.Types.Mixed },
 		event_name: { type: String },
-		aggregate_version: { type: Number }, // should we add a compound unique index?
+		aggregate_version: { type: Number },
 	},
 	{ timestamps: true, collection: 'event_store' }
 );
+
+// this guarantees optimistic locking like mechanism
+EventStoreSchema.index({ aggregate_id: 1, aggregate_version: 1 }, { unique: true });
 
 export type EventStoreDoc = {
 	payload: unknown;
