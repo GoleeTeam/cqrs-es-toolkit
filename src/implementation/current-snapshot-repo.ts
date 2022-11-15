@@ -34,7 +34,7 @@ export class CurrentSnapshotRepo<AggregateType extends AggregateRoot> {
 		return this.model.find(...args);
 	}
 
-	async save(aggregate: AggregateType, aggregateVersion: number): Promise<void> {
+	async save(aggregate: AggregateType): Promise<void> {
 		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 		//@ts-ignore
 		delete aggregate._changes;

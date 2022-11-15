@@ -1,6 +1,6 @@
 {
   "name": "@golee/cqrs-es-toolkit",
-  "version": "3.0.3",
+  "version": "4.0.0",
   "description": "",
   "main": "dist/index",
   "types": "dist/index",
@@ -28,6 +28,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "^27.4.7",
+    "mongodb-memory-server": "^8.10.0",
     "prettier": "^2.5.1",
     "rimraf": "^3.0.2",
     "ts-jest": "^27.1.3",

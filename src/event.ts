@@ -2,6 +2,7 @@ import { Types } from 'mongoose';
 
 export abstract class Event<EventPayloadType> {
 	public eventId: string;
+	public sequence: number;
 	abstract readonly eventName: string;
 	abstract readonly aggregateId: string;
 	abstract readonly eventPayload: EventPayloadType;
@@ -13,6 +14,10 @@ export abstract class Event<EventPayloadType> {
 
 	public setEventId(eventId: string): void {
 		this.eventId = eventId;
+	}
+
+	public setSequence(sequence: number): void {
+		this.sequence = sequence;
 	}
 }
 

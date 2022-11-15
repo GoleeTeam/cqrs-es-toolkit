@@ -16,6 +16,7 @@ export class EsRepo<AggregateType extends AggregateRoot> implements IEsRepo<Aggr
 		}
 
 		aggregate.loadFromHistory(history);
+
 		if (aggregate.deleted && !options.includeDeleted) {
 			return null;
 		}

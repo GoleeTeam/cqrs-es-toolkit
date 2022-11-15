@@ -4,7 +4,7 @@ import { IEsRepo } from '../interfaces';
 
 export interface IPragmaticRepo<AggregateType> {
 	getByIdFromEs: (aggregateId: string, options?: { includeDeleted: boolean }) => Promise<AggregateType | null>;
-	commitAndSave: (aggregate: AggregateType, aggregateVersion: number) => Promise<void>;
+	commitAndSave: (aggregate: AggregateType) => Promise<void>;
 	findOneFromCurrentSnapshot: (...args: Find<AggregateType>) => Promise<CurrentSnapshot<AggregateType> | null>;
 	findManyFromCurrentSnapshot: (...args: Find<AggregateType>) => Promise<CurrentSnapshot<AggregateType>[]>;
 }
@@ -19,9 +19,9 @@ export class PragmaticRepo<AggregateType extends AggregateRoot> implements IPrag
 		return await this.esRepo.getById(aggregate_id, options);
 	}
 
-	async commitAndSave(aggregate: AggregateType, aggregateVersion: number): Promise<void> {
-		await this.esRepo.commit(aggregate, aggregateVersion);
-		await this.writeModelRepo.save(aggregate, aggregateVersion);
+	async commitAndSave(aggregate: AggregateType): Promise<void> {
+		await this.esRepo.commit(aggregate);
+		await this.writeModelRepo.save(aggregate);
 	}
 
 	async findOneFromCurrentSnapshot(...args: Find<AggregateType>): Promise<CurrentSnapshot<AggregateType> | null> {
