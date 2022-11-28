@@ -12,7 +12,7 @@ export interface IPragmaticRepo<AggregateType> {
 export class PragmaticRepo<AggregateType extends AggregateRoot> implements IPragmaticRepo<AggregateType> {
 	constructor(
 		private readonly esRepo: IEsRepo<AggregateType>,
-		private readonly writeModelRepo: CurrentSnapshotRepo<AggregateType>
+		private readonly currentSnapshot: CurrentSnapshotRepo<AggregateType>
 	) {}
 
 	async getByIdFromEs(aggregate_id: string, options = { includeDeleted: false }): Promise<AggregateType | null> {
@@ -21,14 +21,14 @@ export class PragmaticRepo<AggregateType extends AggregateRoot> implements IPrag
 
 	async commitAndSave(aggregate: AggregateType): Promise<void> {
 		await this.esRepo.commit(aggregate);
-		await this.writeModelRepo.save(aggregate);
+		await this.currentSnapshot.save(aggregate);
 	}
 
 	async findOneFromCurrentSnapshot(...args: Find<AggregateType>): Promise<CurrentSnapshot<AggregateType> | null> {
-		return await this.writeModelRepo.findOne(...args);
+		return await this.currentSnapshot.findOne(...args);
 	}
 
 	async findManyFromCurrentSnapshot(...args: Find<AggregateType>): Promise<CurrentSnapshot<AggregateType>[]> {
-		return await this.writeModelRepo.findMany(...args);
+		return await this.currentSnapshot.findMany(...args);
 	}
 }

@@ -1,4 +1,4 @@
-import { Connection, FilterQuery, ProjectionType, QueryOptions, Schema } from 'mongoose';
+import { Connection, FilterQuery, Model, ProjectionType, QueryOptions, Schema } from 'mongoose';
 import { AggregateRoot } from '../aggregate-root';
 
 type ExcludeMatchingProperties<T, V> = Pick<T, { [K in keyof T]-?: T[K] extends V ? never : K }[keyof T]>;
@@ -13,16 +13,21 @@ export type Find<T> = [
 ];
 
 export class CurrentSnapshotRepo<AggregateType extends AggregateRoot> {
-	constructor(private mongoConn: Connection, private readonly aggregateClass: new (...args) => AggregateType) {}
+	private readonly schema: Schema<CurrentSnapshot<AggregateType>>;
+	private readonly model: Model<CurrentSnapshot<AggregateType>>;
 
-	private schema = new Schema<CurrentSnapshot<AggregateType>>(
-		{},
-		{ collection: `${this.aggregateClass.name}_current_snapshot`, timestamps: true, id: false }
-	);
-	private model = this.mongoConn.model<CurrentSnapshot<AggregateType>>(
-		`${this.aggregateClass.name}_model`,
-		this.schema
-	);
+	constructor(private mongoConn: Connection, private readonly aggregateClass: new (...args) => AggregateType) {
+		this.schema = new Schema<CurrentSnapshot<AggregateType>>(
+			{},
+			{ collection: `${this.aggregateClass.name}_current_snapshot`, timestamps: true, id: false }
+		);
+		this.schema.index({ id: 1 }, { unique: true });
+
+		this.model = this.mongoConn.model<CurrentSnapshot<AggregateType>>(
+			`${this.aggregateClass.name}_model`,
+			this.schema
+		);
+	}
 
 	async findOne(...args: Find<CurrentSnapshot<AggregateType>>): Promise<CurrentSnapshot<AggregateType> | null> {
 		args[2] = { ...(args[2] || {}), ...{ strict: false, strictQuery: false, lean: true, deleted: false } };
