@@ -32,12 +32,14 @@ export class CurrentSnapshotRepo<AggregateType extends AggregateRoot> {
 	}
 
 	async findOne(...args: Find<CurrentSnapshot<AggregateType>>): Promise<CurrentSnapshot<AggregateType> | null> {
-		args[2] = { ...(args[2] || {}), ...{ strict: false, strictQuery: false, lean: true, deleted: false } };
+		args[0] = { ...{ deleted: false }, ...(args[2] || {}) };
+		args[2] = { ...(args[2] || {}), ...{ strict: false, strictQuery: false, lean: true } };
 		return this.model.findOne(...args);
 	}
 
 	async findMany(...args: Find<CurrentSnapshot<AggregateType>>): Promise<CurrentSnapshot<AggregateType>[]> {
-		args[2] = { ...(args[2] || {}), ...{ strict: false, strictQuery: false, lean: true, deleted: false } };
+		args[0] = { ...{ deleted: false }, ...(args[2] || {}) };
+		args[2] = { ...(args[2] || {}), ...{ strict: false, strictQuery: false, lean: true } };
 		return this.model.find(...args);
 	}
 
