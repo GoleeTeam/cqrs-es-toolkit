@@ -1,4 +1,4 @@
-import { CurrentSnapshot, CurrentSnapshotRepo, Find } from './current-snapshot-repo';
+import { Count, CurrentSnapshot, CurrentSnapshotRepo, Find } from './current-snapshot-repo';
 import { AggregateRoot } from '../aggregate-root';
 import { IEsRepo } from '../interfaces';
 
@@ -30,5 +30,9 @@ export class PragmaticRepo<AggregateType extends AggregateRoot> implements IPrag
 
 	async findManyFromCurrentSnapshot(...args: Find<AggregateType>): Promise<CurrentSnapshot<AggregateType>[]> {
 		return await this.currentSnapshot.findMany(...args);
+	}
+
+	async countFromCurrentSnapshot(...args: Count<AggregateType>): Promise<number> {
+		return await this.currentSnapshot.count(...args);
 	}
 }

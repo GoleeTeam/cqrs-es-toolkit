@@ -1,4 +1,4 @@
-import { Connection, FilterQuery, Model, ProjectionType, QueryOptions, Schema } from 'mongoose';
+import { Connection, FilterQuery, Model, PipelineStage, ProjectionType, QueryOptions, Schema } from 'mongoose';
 import { AggregateRoot } from '../aggregate-root';
 
 type ExcludeMatchingProperties<T, V> = Pick<T, { [K in keyof T]-?: T[K] extends V ? never : K }[keyof T]>;
@@ -11,6 +11,8 @@ export type Find<T> = [
 	projection?: ProjectionType<CurrentSnapshot<T>>,
 	options?: QueryOptions<CurrentSnapshot<T>>
 ];
+
+export type Count<T> = [filter?: FilterQuery<CurrentSnapshot<T>>, options?: QueryOptions<CurrentSnapshot<T>>];
 
 export class CurrentSnapshotRepo<AggregateType extends AggregateRoot> {
 	private readonly schema: Schema<CurrentSnapshot<AggregateType>>;
@@ -37,6 +39,11 @@ export class CurrentSnapshotRepo<AggregateType extends AggregateRoot> {
 	async findMany(...args: Find<CurrentSnapshot<AggregateType>>): Promise<CurrentSnapshot<AggregateType>[]> {
 		args[2] = { ...(args[2] || {}), ...{ strict: false, strictQuery: false, lean: true, deleted: false } };
 		return this.model.find(...args);
+	}
+
+	async count(...args: Count<CurrentSnapshot<AggregateType>>): Promise<number> {
+		args[1] = { ...(args[1] || {}), ...{ strict: false, strictQuery: false, lean: true, deleted: false } };
+		return this.model.countDocuments(...args);
 	}
 
 	async save(aggregate: AggregateType): Promise<void> {
