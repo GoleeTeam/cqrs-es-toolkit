@@ -32,19 +32,20 @@ export class CurrentSnapshotRepo<AggregateType extends AggregateRoot> {
 	}
 
 	async findOne(...args: Find<CurrentSnapshot<AggregateType>>): Promise<CurrentSnapshot<AggregateType> | null> {
-		args[0] = { ...{ deleted: false }, ...(args[2] || {}) };
-		args[2] = { ...(args[2] || {}), ...{ strict: false, strictQuery: false, lean: true } };
+		args[0] = { ...{ deleted: false }, ...(args[0] || {}) };
+		args[2] = { ...(args[2] || {}), ...{ strict: false, strictQucuery: false, lean: true } };
 		return this.model.findOne(...args);
 	}
 
 	async findMany(...args: Find<CurrentSnapshot<AggregateType>>): Promise<CurrentSnapshot<AggregateType>[]> {
-		args[0] = { ...{ deleted: false }, ...(args[2] || {}) };
+		args[0] = { ...{ deleted: false }, ...(args[0] || {}) };
 		args[2] = { ...(args[2] || {}), ...{ strict: false, strictQuery: false, lean: true } };
 		return this.model.find(...args);
 	}
 
 	async count(...args: Count<CurrentSnapshot<AggregateType>>): Promise<number> {
-		args[1] = { ...(args[1] || {}), ...{ strict: false, strictQuery: false, lean: true, deleted: false } };
+		args[0] = { ...{ deleted: false }, ...(args[0] || {}) };
+		args[1] = { ...(args[1] || {}), ...{ strict: false, strictQuery: false, lean: true } };
 		return this.model.countDocuments(...args);
 	}
 
