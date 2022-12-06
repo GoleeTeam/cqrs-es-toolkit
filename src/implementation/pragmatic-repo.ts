@@ -7,6 +7,7 @@ export interface IPragmaticRepo<AggregateType> {
 	commitAndSave: (aggregate: AggregateType) => Promise<void>;
 	findOneFromCurrentSnapshot: (...args: Find<AggregateType>) => Promise<CurrentSnapshot<AggregateType> | null>;
 	findManyFromCurrentSnapshot: (...args: Find<AggregateType>) => Promise<CurrentSnapshot<AggregateType>[]>;
+	countFromCurrentSnapshot: (...args: Count<AggregateType>) => Promise<number>;
 }
 
 export class PragmaticRepo<AggregateType extends AggregateRoot> implements IPragmaticRepo<AggregateType> {
