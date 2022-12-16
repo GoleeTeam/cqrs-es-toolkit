@@ -33,7 +33,7 @@ export class CurrentSnapshotRepo<AggregateType extends AggregateRoot> {
 
 	async findOne(...args: Find<CurrentSnapshot<AggregateType>>): Promise<CurrentSnapshot<AggregateType> | null> {
 		args[0] = { ...{ deleted: false }, ...(args[0] || {}) };
-		args[2] = { ...(args[2] || {}), ...{ strict: false, strictQucuery: false, lean: true } };
+		args[2] = { ...(args[2] || {}), ...{ strict: false, strictQuery: false, lean: true } };
 		return this.model.findOne(...args);
 	}
 
