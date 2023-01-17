@@ -1,4 +1,4 @@
-import { Document, Model, Schema, Types } from 'mongoose';
+import { Document, FilterQuery, Model, Schema, Types } from 'mongoose';
 import { IEventPublisher, IEventStore } from '../interfaces';
 import { Event } from '../event';
 
@@ -40,11 +40,11 @@ export class MongoEventStore implements IEventStore {
 		skip: number,
 		limit: number,
 		events_name?: string[],
-		start_from?: string
+		start_from_excluded?: string
 	): Promise<Event<unknown>[]> {
-		const filters = {};
-		events_name && (filters['events_name'] = { $in: events_name });
-		start_from && (filters['_id'] = { $gte: new Types.ObjectId(start_from) });
+		const filters: FilterQuery<EventStoreDoc> = {};
+		events_name && (filters['event_name'] = { $in: events_name });
+		start_from_excluded && (filters['_id'] = { $gt: new Types.ObjectId(start_from_excluded) });
 
 		const eventsDocs = await this.mongoDocModel.find(filters, null, {
 			sort: { _id: 1 },
