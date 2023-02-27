@@ -53,6 +53,7 @@ export class CurrentSnapshotRepo<AggregateType extends AggregateRoot> {
 		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 		//@ts-ignore
 		delete aggregate._changes;
-		await this.model.findOneAndUpdate({ id: aggregate.id }, { $set: aggregate }, { upsert: true, strict: false });
+		const _aggregate = JSON.parse(JSON.stringify(aggregate));
+		await this.model.findOneAndUpdate({ id: aggregate.id }, { $set: _aggregate }, { upsert: true, strict: false });
 	}
 }
