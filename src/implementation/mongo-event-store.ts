@@ -17,6 +17,7 @@ export class MongoEventStore implements IEventStore {
 				event_name: event.eventName,
 				payload: event.eventPayload,
 				aggregate_version: event.aggregateVersion,
+				ts: new Date(),
 			});
 
 			if (this.publisher && event.isPublic) {
@@ -92,4 +93,5 @@ export type EventStoreDoc = {
 	aggregate_id: string;
 	event_name: string;
 	aggregate_version: number;
+	ts: Date;
 } & Document;
