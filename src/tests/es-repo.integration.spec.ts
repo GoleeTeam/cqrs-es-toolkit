@@ -32,7 +32,7 @@ describe('EsRepo', function () {
 		await eventStoreModel.deleteMany({});
 	});
 
-	describe('Creation', function () {
+	describe('Create Aggregate', function () {
 		beforeEach(async function () {
 			const testAggregate = new TestAggregate(uuid1Fixture);
 			testAggregate.create(originalDescription);
@@ -59,7 +59,7 @@ describe('EsRepo', function () {
 		});
 	});
 
-	describe('Case change event', function () {
+	describe('Change Aggregate', function () {
 		let changedDescription = 'changed';
 
 		beforeEach(async function () {
@@ -84,6 +84,27 @@ describe('EsRepo', function () {
 				sort: { aggregate_version: -1 },
 			});
 			expect(document.aggregate_version).toEqual(2);
+		});
+	});
+
+	describe('Delete Aggregate', function () {
+
+		beforeEach(async function () {
+			const testAggregate = new TestAggregate(uuid1Fixture);
+			testAggregate.create(originalDescription);
+			testAggregate.delete();
+			await esRepo.commit(testAggregate);
+		});
+
+		it('should not return deleted aggregate by default', async function () {
+			const testAggregate = await esRepo.getById(uuid1Fixture);
+			expect(testAggregate).toBeNull();
+		});
+
+		it('should return deleted aggregate with the includeDeleted option', async function () {
+			const testAggregate = await esRepo.getById(uuid1Fixture, {includeDeleted: true});
+			expect(testAggregate).not.toBeNull();
+			expect(testAggregate.description).toEqual(originalDescription);
 		});
 	});
 });
