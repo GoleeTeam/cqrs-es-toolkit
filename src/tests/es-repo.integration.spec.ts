@@ -21,6 +21,9 @@ describe('EsRepo', function () {
 			publish: async (e: Event<unknown>) => {
 				console.log(`Fake publisher: ${e.eventName}`);
 			},
+			publishBatch: async (es: { messageContent: Event<unknown>; routingKey: string }[]) => {
+				es.map(e => console.log(`Fake publisher: ${e.routingKey}`))
+			}
 		});
 	});
 

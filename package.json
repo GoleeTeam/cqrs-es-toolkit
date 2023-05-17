@@ -1,6 +1,6 @@
 {
   "name": "@golee/cqrs-es-toolkit",
-  "version": "4.1.4",
+  "version": "5.0.0",
   "description": "",
   "main": "dist/index",
   "types": "dist/index",

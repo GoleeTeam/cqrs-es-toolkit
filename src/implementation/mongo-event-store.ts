@@ -10,23 +10,28 @@ export class MongoEventStore implements IEventStore {
 	) {}
 
 	async saveEvents(aggregate_id: string, events: Event<unknown>[]): Promise<void> {
-		for (const event of events) {
-			await this.mongoDocModel.create({
-				_id: event.eventId,
-				aggregate_id: event.aggregateId,
-				event_name: event.eventName,
-				payload: event.eventPayload,
-				aggregate_version: event.aggregateVersion,
-				ts: new Date(),
-			});
+		await this.mongoDocModel.insertMany(this.eventsToDocs(events));
 
-			if (this.publisher && event.isPublic) {
-				// TODO: needed for amqp-messaging publish interface
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				// @ts-ignore
-				await this.publisher.publish(event, event.eventName);
-			}
+		if (this.publisher) {
+			await this.publisher.publishBatch(this.eventsToPublish(events));
 		}
+	}
+
+	private eventsToDocs(events: Event<unknown>[]) {
+		return events.map(event => ({
+			_id: event.eventId,
+			aggregate_id: event.aggregateId,
+			event_name: event.eventName,
+			payload: event.eventPayload,
+			aggregate_version: event.aggregateVersion,
+			ts: new Date(),
+		}));
+	}
+
+	private eventsToPublish(events: Event<unknown>[]) {
+		return events
+			.filter(event => event.isPublic)
+			.map(event => ({ messageContent: event, routingKey: event.eventName }));
 	}
 
 	async getEventsForAggregate(aggregate_id: string): Promise<Event<unknown>[]> {
