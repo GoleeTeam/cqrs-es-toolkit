@@ -36,7 +36,7 @@ export class MongoEventStore implements IEventStore {
 
 	async getEventsForAggregate(aggregate_id: string): Promise<Event<unknown>[]> {
 		const eventsDocs = await this.mongoDocModel.find({ aggregate_id: aggregate_id }, null, {
-			sort: { _id: 1 },
+			sort: { aggregate_version: 1 },
 		});
 
 		return this.mongoDocsToDomainEvents(eventsDocs);
