@@ -24,9 +24,9 @@ export class EsRepo<AggregateType extends AggregateRoot> implements IEsRepo<Aggr
 		return aggregate;
 	}
 
-	async commit(aggregate: AggregateType): Promise<void> {
+	async commit(aggregate: AggregateType, saveHook?: () => Promise<void>): Promise<void> {
 		const uncommittedChanges = aggregate.getUncommittedChanges();
-		await this.eventStore.saveEvents(aggregate.id, uncommittedChanges);
+		await this.eventStore.saveEvents(aggregate.id, uncommittedChanges, saveHook);
 		aggregate.markChangesAsCommitted();
 	}
 }

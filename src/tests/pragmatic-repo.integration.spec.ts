@@ -1,4 +1,4 @@
-import { MongoMemoryServer } from 'mongodb-memory-server';
+import { MongoMemoryReplSet } from 'mongodb-memory-server';
 import mongoose, { Model } from 'mongoose';
 import {
 	CurrentSnapshotRepo,
@@ -24,7 +24,13 @@ describe('PragmaticRepo', function () {
 	const originalDescription = 'created';
 
 	beforeAll(async () => {
-		const mongodb = await MongoMemoryServer.create();
+		const mongodb = await MongoMemoryReplSet.create({
+			replSet: {
+				count: 1,
+				dbName: 'test',
+				storageEngine: 'wiredTiger',
+			},
+		});
 		await mongoose.connect(mongodb.getUri());
 
 		eventStoreModel = await mongoose.model<EventStoreDoc>('EventStore', EventStoreSchema);
@@ -100,7 +106,7 @@ describe('PragmaticRepo', function () {
 				await pragmaticRepo.commitAndSave(testAggregate);
 			});
 
-			xit('should not write in the event store', async () => {
+			it('should not write in the event store', async () => {
 				const testAggregate2 = new TestAggregate(uuid2Fixture);
 				testAggregate2.create(originalDescription);
 				testAggregate2.unique('thisIsUnique');

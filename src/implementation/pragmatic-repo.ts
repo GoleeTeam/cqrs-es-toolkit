@@ -21,8 +21,9 @@ export class PragmaticRepo<AggregateType extends AggregateRoot> implements IPrag
 	}
 
 	async commitAndSave(aggregate: AggregateType): Promise<void> {
-		await this.esRepo.commit(aggregate);
-		await this.currentSnapshot.save(aggregate);
+		await this.esRepo.commit(aggregate, async () => {
+			await this.currentSnapshot.save(aggregate);
+		});
 	}
 
 	async findOneFromCurrentSnapshot(...args: Find<AggregateType>): Promise<CurrentSnapshot<AggregateType> | null> {

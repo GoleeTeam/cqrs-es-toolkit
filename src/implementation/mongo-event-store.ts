@@ -9,8 +9,17 @@ export class MongoEventStore implements IEventStore {
 		private readonly publisher?: IEventPublisher
 	) {}
 
-	async saveEvents(aggregate_id: string, events: Event<unknown>[]): Promise<void> {
-		await this.mongoDocModel.insertMany(this.eventsToDocs(events));
+	async saveEvents(aggregate_id: string, events: Event<unknown>[], saveHook?: () => Promise<void>): Promise<void> {
+		const session = await this.mongoDocModel.startSession();
+
+		try {
+			await session.withTransaction(async () => {
+				await this.mongoDocModel.insertMany(this.eventsToDocs(events), { session });
+				if (saveHook) await saveHook();
+			});
+		} finally {
+			await session.endSession();
+		}
 
 		if (this.publisher) {
 			await this.publisher.publishBatch(this.eventsToPublish(events));

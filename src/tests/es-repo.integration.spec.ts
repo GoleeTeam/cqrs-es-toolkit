@@ -1,4 +1,4 @@
-import { MongoMemoryServer } from 'mongodb-memory-server';
+import { MongoMemoryReplSet } from 'mongodb-memory-server';
 import mongoose, { Model } from 'mongoose';
 import { EsRepo, EventStoreDoc, EventStoreSchema, MongoEventStore } from '../implementation';
 import { Event } from '../event';
@@ -14,7 +14,13 @@ describe('EsRepo', function () {
 	const originalDescription = 'created';
 
 	beforeAll(async () => {
-		const mongodb = await MongoMemoryServer.create();
+		const mongodb = await MongoMemoryReplSet.create({
+			replSet: {
+				count: 1,
+				dbName: 'test',
+				storageEngine: 'wiredTiger',
+			},
+		});
 		await mongoose.connect(mongodb.getUri());
 		eventStoreModel = await mongoose.model<EventStoreDoc>('EventStore', EventStoreSchema);
 		mongoEventStore = new MongoEventStore(eventStoreModel, eventsMap, {
