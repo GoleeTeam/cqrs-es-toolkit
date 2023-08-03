@@ -38,17 +38,21 @@ describe('PragmaticRepo', function () {
 			publish: async (e: Event<unknown>) => {
 				console.log(`Fake publisher: ${e.eventName}`);
 			},
-			publishBatch: async (es: { messageContent: Event<unknown>; routingKey: string }[]) => {
-				es.map(e => console.log(`Fake publisher: ${e.routingKey}`));
+			publishBatch: async (events: { messageContent: Event<unknown>; routingKey: string }[]) => {
+				events.map(e => console.log(`Fake publisher: ${e.routingKey}`));
 			},
 		});
 		esRepo = new EsRepo<TestAggregate>(mongoEventStore, TestAggregate);
 		currentSnapshotRepo = new CurrentSnapshotRepo<TestAggregate>(mongoose.connection, TestAggregate);
-
 		pragmaticRepo = new PragmaticRepo<TestAggregate>(esRepo, currentSnapshotRepo);
 	});
 
 	afterEach(async function () {
+		try {
+			await mongoose.connection.collection('TestAggregate_current_snapshot').dropIndex('unique');
+			await mongoose.connection.collection('event_store').dropIndex('unique');
+		} catch (e) {}
+
 		await eventStoreModel.deleteMany({});
 	});
 
@@ -90,29 +94,6 @@ describe('PragmaticRepo', function () {
 		it('should save event sequence to 1 in snapshot collection', async function () {
 			const document = await currentSnapshotRepo.findOne({ id: uuid1Fixture });
 			expect(document.version).toEqual(1);
-		});
-	});
-
-	describe('Transactional behaviour', () => {
-		describe('Case 1: write to snapshot fail', () => {
-			beforeEach(async function () {
-				await mongoose.connection
-					.collection('TestAggregate_current_snapshot')
-					.createIndex({ uniqueAttribute: 1 }, { unique: true });
-
-				const testAggregate = new TestAggregate(uuid1Fixture);
-				testAggregate.create(originalDescription);
-				testAggregate.unique('thisIsUnique');
-				await pragmaticRepo.commitAndSave(testAggregate);
-			});
-
-			it('should not write in the event store', async () => {
-				const testAggregate2 = new TestAggregate(uuid2Fixture);
-				testAggregate2.create(originalDescription);
-				testAggregate2.unique('thisIsUnique');
-				await expect(() => pragmaticRepo.commitAndSave(testAggregate2)).rejects.toThrow();
-				expect(await pragmaticRepo.getByIdFromEs(uuid2Fixture)).toBeNull();
-			});
 		});
 	});
 
@@ -161,6 +142,52 @@ describe('PragmaticRepo', function () {
 			const testAggregate = await esRepo.getById(uuid1Fixture, { includeDeleted: true });
 			expect(testAggregate).not.toBeNull();
 			expect(testAggregate.description).toEqual(originalDescription);
+		});
+	});
+
+	describe('Transactional behaviour', () => {
+		let testAggregate: TestAggregate;
+		beforeEach(() => {
+			testAggregate = new TestAggregate(uuid1Fixture);
+			testAggregate.create(originalDescription);
+		});
+
+		describe('Case 1: write to snapshot fail', () => {
+			beforeEach(async function () {
+				await mongoose.connection
+					.collection('TestAggregate_current_snapshot')
+					.createIndex({ uniqueAttribute: 1 }, { name: 'unique', unique: true });
+
+				testAggregate.unique('thisIsUnique');
+				await pragmaticRepo.commitAndSave(testAggregate);
+			});
+
+			it('should not write in the event store', async () => {
+				const testAggregate2 = new TestAggregate(uuid2Fixture);
+				testAggregate2.create(originalDescription);
+				testAggregate2.unique('thisIsUnique');
+				await expect(() => pragmaticRepo.commitAndSave(testAggregate2)).rejects.toThrow();
+				expect(await pragmaticRepo.getByIdFromEs(uuid2Fixture)).toBeNull();
+			});
+		});
+
+		describe('Case 2: write to event store fail', () => {
+			beforeEach(async () => {
+				await mongoose.connection
+					.collection('event_store')
+					.createIndex({ 'payload.uniqueAttribute': 1 }, { name: 'unique', unique: true });
+
+				testAggregate.unique('thisIsUnique');
+				await pragmaticRepo.commitAndSave(testAggregate);
+			});
+
+			it('should not write the snapshot', async () => {
+				const testAggregate2 = new TestAggregate(uuid2Fixture);
+				testAggregate2.create(originalDescription);
+				testAggregate2.unique('thisIsUnique');
+				await expect(() => pragmaticRepo.commitAndSave(testAggregate2)).rejects.toThrow();
+				expect(await pragmaticRepo.findOneFromCurrentSnapshot({ id: uuid2Fixture })).toBeNull();
+			});
 		});
 	});
 });
