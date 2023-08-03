@@ -1,7 +1,7 @@
 import { AggregateRoot } from '../aggregate-root';
-import { AggregateChanged, AggregateCreated, AggregateDeleted } from './events.fixture';
-
+import { AggregateChanged, AggregateCreated, AggregateDeleted, AggregateUnique } from './events.fixture';
 export class TestAggregate extends AggregateRoot {
+	public uniqueAttribute: string;
 	public description: string;
 	public deleted = false;
 
@@ -21,12 +21,20 @@ export class TestAggregate extends AggregateRoot {
 		this.applyChange(new AggregateDeleted(this.id));
 	}
 
+	unique(value: string) {
+		this.applyChange(new AggregateUnique(this.id, { uniqueAttribute: value }));
+	}
+
 	private onAggregateCreated({ eventPayload }: AggregateCreated) {
 		this.description = eventPayload.description;
 	}
 
 	private onAggregateChanged({ eventPayload }: AggregateChanged) {
 		this.description = eventPayload.description;
+	}
+
+	private onAggregateUnique({ eventPayload }: AggregateUnique) {
+		this.uniqueAttribute = eventPayload.uniqueAttribute;
 	}
 
 	private onAggregateDeleted(AggregateDeleted) {
