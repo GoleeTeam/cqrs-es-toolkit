@@ -21,7 +21,7 @@ export class MongoEventStore implements IEventStore {
 			await session.endSession();
 		}
 
-		if (this.publisher) {
+		if (this.publisher && events.length !== 0) {
 			await this.publisher.publishBatch(this.eventsToPublish(events));
 		}
 	}
