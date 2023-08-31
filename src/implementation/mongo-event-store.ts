@@ -82,9 +82,13 @@ export class MongoEventStore implements IEventStore {
 		});
 	}
 
-	async getDistinctAggregateIdsByEvents(events_name?: string[]): Promise<string[]> {
+	async getDistinctAggregateIdsByEvents(
+		events_name?: string[],
+		options?: { allowDiskUsage: boolean }
+	): Promise<string[]> {
 		const filters = events_name ? { event_name: { $in: events_name } } : {};
-		return this.mongoDocModel.distinct('aggregate_id', filters);
+		const { allowDiskUsage } = options ? options : { allowDiskUsage: false };
+		return this.mongoDocModel.distinct('aggregate_id', filters).allowDiskUse(allowDiskUsage);
 	}
 }
 
